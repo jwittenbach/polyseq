@@ -36,26 +36,26 @@ def loadCellRanger(path, mapping=None):
     return pd.DataFrame(data, columns=genes)
 
 def writeCSV(data, path, mapping=None):
-	'''
-	write data to an CSV file in (genes, cells) format
+    '''
+    write data to an CSV file in (genes, cells) format
 
-	Parameters:
-	-----------
+    Parameters:
+    -----------
     data: DataFrame
         Pandas DataFrame of counts indexed as (cells, genes)
-	path: string
-		Path to output file
-	mapping: string, default=None
-		Path to a CSV file containing a mapping between gene IDs and gene
-		names. If specified, gene IDs will be included in the file.
-	'''
-	if mapping is not None:
-		mapping = pd.read_csv(mapping, header=None)
-		final = data.copy().T
-		final['gene ID'] = mapping.set_index(1)[0][data.columns]
-		d = final.shape[1]
-		final[:, [d-1] + range(d-1)]
-	else:
-		final = data
+    path: string
+        Path to output file
+    mapping: string, default=None
+        Path to a CSV file containing a mapping between gene IDs and gene
+        names. If specified, gene IDs will be included in the file.
+    '''
+    if mapping is not None:
+        mapping = pd.read_csv(mapping, header=None)
+        final = data.copy().T
+        final['gene ID'] = mapping.set_index(1)[0][data.columns]
+        d = final.shape[1]
+        final[:, [d-1] + range(d-1)]
+    else:
+        final = data
 
-	final.to_csv(path, header=None)
+    final.to_csv(path, header=None)
