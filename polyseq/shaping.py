@@ -25,6 +25,9 @@ def cullCells(data, counts=1, genes=None, numGenes=None, geneCounts=1):
     subset: DataFrame
         New DataFrame containing only cells that meet the criteria
     '''
+    if isinstance(genes, str):
+        genes = [genes]
+
     if counts is None and numGenes is None:
         print('Must choose at least one criterion by setting either counts of numGenes')
 
