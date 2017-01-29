@@ -25,24 +25,29 @@ def cullCells(data, counts=1, genes=None, numGenes=None, geneCounts=1):
     subset: DataFrame
         New DataFrame containing only cells that meet the criteria
     '''
+    if counts is not None and numGenes is not None:
+        print('Can only choose one criterion, either counts or numGenes')
+        return
+
+    if counts is None and numGenes is None:
+        print('Must choose one criterion by setting either counts or numGenes')
+        return
+
     if isinstance(genes, str):
         genes = [genes]
 
-    if counts is None and numGenes is None:
-        print('Must choose at least one criterion by setting either counts of numGenes')
-
     if genes is not None:
-        data = data[genes]
-
-    if counts is not None:
-        crit = data.sum(axis=1) >= counts
-        subset = data[crit]
+        subset = data[genes]
     else:
         subset = data
 
+    if counts is not None:
+        crit = subset.sum(axis=1) >= counts
+        subset = data[crit]
+
     if numGenes is not None:
-        crit = (data >= geneCounts).sum(axis=1) >= numGenes
-        subset = subset[crit]
+        crit = (subset >= geneCounts).sum(axis=1) >= numGenes
+        subset = data[crit]
 
     return subset
 
