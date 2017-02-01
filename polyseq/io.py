@@ -49,13 +49,11 @@ def writeCSV(data, path, mapping=None):
         Path to a CSV file containing a mapping between gene IDs and gene
         names. If specified, gene IDs will be included in the file.
     '''
+    final = data.T.reset_index().rename(columns={"index": "gene names"})
     if mapping is not None:
         mapping = pd.read_csv(mapping, header=None)
-        final = data.copy().T
-        final['gene ID'] = mapping.set_index(1)[0][data.columns]
+        final['gene ID'] = mapping.set_index(1)[0][data.columns].values
         d = final.shape[1]
-        final[:, [d-1] + range(d-1)]
-    else:
-        final = data
+        final = final.iloc[:, [d-1] + range(d-1)]
 
-    final.to_csv(path, header=None)
+    final.to_csv(path, index=False)
