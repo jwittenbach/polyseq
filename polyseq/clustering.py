@@ -1,4 +1,5 @@
 import numpy as np
+import multiprocessing as mp
 
 def getLogW(data, Algorithm, k, algKwargs):
     '''
@@ -19,7 +20,20 @@ def generateSample(bounds, mean, pca, n):
     orig = pca.inverse_transform(proj)
     return mean + orig
 
-def gapStatistic(data, Algorithm, nSamples, algKwargs={}):
+def getSampleStat(args):
+    '''
+    Get the logW statistic for a sample from the null distribution
+
+    Needed because multiprocessing.Pool.map only works with functions that
+    take a single argument. 
+    '''
+    seed, bounds, mean, pca, n, Algorithm, k, algKwargs = args
+    np.random.seed(seed)
+    sample = generateSample(bounds, mean, pca, n)
+    stat, _ = getLogW(sample, Algorithm, k, algKwargs)
+    return stat
+
+def gapStatistic(data, Algorithm, nSamples, nProcesses=1, algKwargs={}):
     '''
     Determine the number of clusters via the gap statistic method
 
@@ -36,6 +50,11 @@ def gapStatistic(data, Algorithm, nSamples, algKwargs={}):
     nSamples: int
         Number of samples from null distribution to use when computing
         reference statistics
+
+    nProcesses: int, default=1
+        Number of processes to use for parallel processing of samples from null
+        distribution. Note: each process will require memory equal to the size
+        of the original dataset to store the random sample.
 
     algKwargs: dictionary, default={}
        Optional keyword arguments to pass to the clustering algorithm
@@ -61,17 +80,18 @@ def gapStatistic(data, Algorithm, nSamples, algKwargs={}):
     k=1
     gapLast = 0
     labels = []
+    p = mp.Pool(processes=nProcesses)
     while True:
+        print k
         # cluster true data
         labelsLast = labels
         logW, labels = getLogW(data, Algorithm, k, algKwargs)
         # create and cluster data from null distribution
-        stats = []
-        #TODO: parallelize this loop for multithreaded execution
-        for _ in range(nSamples):
-            sample = generateSample(bounds, mean, pca, n)
-            stat, _ = getLogW(sample, Algorithm, k, algKwargs)
-            stats.append(stat)
+        args = (bounds, mean, pca, n, Algorithm, k, algKwargs)
+        seedStart = np.random.randint(low=0, high=2*8-1)
+        args = [(s + seedStart,) + args for s in range(nSamples)]
+        stats = p.map(getSampleStat, args)
+        # compute statistics
         logWStar = np.mean(stats)
         error = np.sqrt(1-1.0/nSamples) * np.std(stats)
         gap = logWStar - logW
