@@ -9,7 +9,7 @@ def getLogW(data, Algorithm, k, algKwargs):
     distsToCenters = alg.fit_transform(data)
     labels = alg.labels_
     logW = np.log(np.sum(np.choose(labels, distsToCenters.T)**2))
-    return logW, labels 
+    return logW, labels
 
 def generateSample(bounds, mean, pca, n):
     '''
@@ -25,7 +25,7 @@ def getSampleStat(args):
     Get the logW statistic for a sample from the null distribution
 
     Needed because multiprocessing.Pool.map only works with functions that
-    take a single argument. 
+    take a single argument.
     '''
     seed, bounds, mean, pca, n, Algorithm, k, algKwargs = args
     np.random.seed(seed)
@@ -33,7 +33,8 @@ def getSampleStat(args):
     stat, _ = getLogW(sample, Algorithm, k, algKwargs)
     return stat
 
-def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None, algKwargs={}):
+def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None,
+                 algKwargs={}):
     '''
     Determine the number of clusters via the gap statistic method
 
@@ -80,7 +81,7 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None, algKwargs
 
     # compute parameters of null distribution
     from sklearn.decomposition import PCA
-    mean = data.mean(axis=0)
+    mean = data.mean(axis=0).__array__()
     centered = data - mean
     pca = PCA(n_components=k).fit(centered)
     proj = pca.transform(centered)
@@ -91,7 +92,6 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None, algKwargs
     labels = []
     p = mp.Pool(processes=nProcesses)
     while True:
-        print k
         # cluster true data
         labelsLast = labels
         logW, labels = getLogW(data, Algorithm, k, algKwargs)
@@ -115,3 +115,48 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None, algKwargs
             print("exiting early")
             return -1, labels
 
+def hCluster(data, Algorithm, nSamples=1000, nProcesses=1, cutoff=None,
+             algKwargs={}):
+    '''
+    Top-down hierarchical clustering.
+
+    Parameters:
+    -----------
+    data: 2D array-like
+        Data maxtrix of shape (samples, features)
+
+    Algorithm: scikit-learn style clustering algorithm class
+        e.g. sklearn.cluster.KMeans
+
+    nSamples: int, default=1000
+        Number of samples from null distribution to use when using the gap
+        statistic to determine depth of clustering.
+
+    nProcesses: int, default=1
+        Number of processes to use for parallel processing of samples from null
+        distribution. Note: each process will require memory equal to the size
+        of the original dataset to store the random sample.
+
+    cutoff: int, default=None
+        Maximum number of clusters to try before exiting with an error code (k
+        = -1). If None, then the number of clusters can be artibrarily large,
+        if supported by the data.
+
+    algKwargs: dictionary, default={}
+       Optional keyword arguments to pass to the clustering algorithm
+       constructor.
+
+    Returns:
+    --------
+    '''
+
+    args = (Algorithm, nSamples, nProcesses, cutoff, algKwargs)
+    k, labels = gapStatistic(data, *args)
+
+    if k == 1:
+        return {'k': 1}
+
+    else:
+        clusters = [data.index[labels == i].__array__() for i in range(k)]
+        subclusters = [hCluster(data.loc[inds], *args) for inds in clusters]
+        return {'k': k, 'clusters': clusters, 'subclusters': subclusters}

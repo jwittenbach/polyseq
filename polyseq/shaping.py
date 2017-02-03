@@ -155,14 +155,12 @@ def cluster(data, sortCells=True, sortGenes=True):
 
     if sortCells:
         sortingInds = clusterArgSort(data.__array__())
-        print sortingInds
         result = data.iloc[sortingInds]
     else:
         result = data
 
     if sortGenes:
         sortingInds = clusterArgSort(result.__array__().T)
-        print sortingInds
         result = result.iloc[:, sortingInds]
 
     return result
