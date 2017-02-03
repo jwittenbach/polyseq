@@ -33,7 +33,7 @@ def getSampleStat(args):
     stat, _ = getLogW(sample, Algorithm, k, algKwargs)
     return stat
 
-def gapStatistic(data, Algorithm, nSamples, nProcesses=1, algKwargs={}):
+def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None, algKwargs={}):
     '''
     Determine the number of clusters via the gap statistic method
 
@@ -56,16 +56,25 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, algKwargs={}):
         distribution. Note: each process will require memory equal to the size
         of the original dataset to store the random sample.
 
+    cutoff: int, default=None
+        Maximum number of clusters to try before exiting with an error code (k
+        = -1)
+
+    cutoff: int, default=None
+        Maximum number of clusters to try before exiting with an error code (k
+        = -1). If None, then the number of clusters can be artibrarily large,
+        if supported by the data.
+
     algKwargs: dictionary, default={}
        Optional keyword arguments to pass to the clustering algorithm
-       constructor. 
+       constructor.
 
     Returns:
     --------
     k: int
         The optimal number of clusters
     labels:
-        Cluster labels when fitting with k clusters 
+        Cluster labels when fitting with k clusters
     '''
     n, k = data.shape
 
@@ -102,7 +111,7 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, algKwargs={}):
             continue
         if deltaGap < error:
             return k - 2, labelsLast
-        if k > 10:
+        if cutoff is not None and k > cutoff:
             print("exiting early")
-            return -1, labels 
+            return -1, labels
 
