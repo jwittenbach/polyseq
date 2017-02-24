@@ -16,3 +16,34 @@ def clusterArgSort(data):
     agg = AgglomerativeClustering()
     agg.fit(data)
     return expand_tree(agg.children_)
+
+def parallelize(f, argList, nProcs):
+
+    from multiprocessing import Process, Manager
+
+    jobsPerProc = len(argList)//nProcs
+
+    def g(f, args, pid, valStore):
+        for i, a in enumerate(args):
+            valStore[jobsPerProc*pid + i] = f(a)
+
+    with Manager() as manager:
+
+        valStore = manager.dict()
+        procs = []
+
+        for i in range(nProcs):
+            argSubset = argList[i*jobsPerProc : (i + 1)*jobsPerProc]
+            p = Process(target=g, args=(f, argSubset, i, valStore))
+            procs.append(p)
+
+        for p in procs:
+            p.start()
+
+        for p in procs:
+            p.join()
+
+        for p in procs:
+            p.terminate()
+
+        return valStore.values()
