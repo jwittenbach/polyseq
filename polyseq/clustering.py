@@ -1,5 +1,6 @@
 import numpy as np
 import multiprocessing as mp
+import pandas as pd
 
 def getLogW(data, Algorithm, k, algKwargs):
     '''
@@ -115,7 +116,7 @@ def gapStatistic(data, Algorithm, nSamples, nProcesses=1, cutoff=None,
             print("exiting early")
             return -1, labels
 
-def hCluster(data, Algorithm, nSamples=1000, nProcesses=1, cutoff=None,
+def hCluster(data, DimAlg, ClustAlg, nSamples=1000, nProcesses=1, cutoff=None,
              algKwargs={}):
     '''
     Top-down hierarchical clustering.
@@ -150,7 +151,9 @@ def hCluster(data, Algorithm, nSamples=1000, nProcesses=1, cutoff=None,
     --------
     '''
 
-    args = (Algorithm, nSamples, nProcesses, cutoff, algKwargs)
+    args = (ClustAlg, nSamples, nProcesses, cutoff, algKwargs)
+    reduced = pd.DataFrame(DimAlg(data.__array__()))
+    reduced.index = data.index
     k, labels = gapStatistic(data, *args)
 
     if k == 1:
@@ -158,5 +161,5 @@ def hCluster(data, Algorithm, nSamples=1000, nProcesses=1, cutoff=None,
 
     else:
         clusters = [data.index[labels == i].__array__() for i in range(k)]
-        subclusters = [hCluster(data.loc[inds], *args) for inds in clusters]
+        subclusters = [hCluster(data.loc[inds], DimAlg, *args) for inds in clusters]
         return {'k': k, 'clusters': clusters, 'subclusters': subclusters}

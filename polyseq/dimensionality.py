@@ -42,17 +42,10 @@ def pca(data, k=None, nShuffles=1000, alpha=0.05, nProcesses=1):
             pca = RandomizedPCA(n_components=m)
         proj = pca.fit_transform(zscored)
 
-        print('----')
-        print(np.sort(scores))
-        print(cutoff)
-        print(pca.explained_variance_)
-
         try:
             ind = np.where(pca.explained_variance_ < cutoff)[0][0]
         except:
             m = 2*m
             print('looping...')
             continue
-        print(ind)
-        print(proj.shape)
         return proj[:, :ind]
