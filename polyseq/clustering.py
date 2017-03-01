@@ -163,3 +163,21 @@ def hCluster(data, DimAlg, ClustAlg, nSamples=1000, nProcesses=1, cutoff=None,
         clusters = [data.index[labels == i].__array__() for i in range(k)]
         subclusters = [hCluster(data.loc[inds], DimAlg, *args) for inds in clusters]
         return {'k': k, 'clusters': clusters, 'subclusters': subclusters}
+
+def _factor(data, k, alpha, beta, frac, seed):
+    from pyper import R
+    r = R()
+
+    r.m = data
+    r.seed, r.k, r.alpha, r.beta, r.frac, r.seed = seed, k, alpha, beta, frac, seed
+
+    r.run([
+        'library(NNLM)',
+        'set.seed(seed)',
+        'inds <- sample(length(m), frac*length(m))',
+        'targets <- m[inds]',
+        'm[inds] <- NA',
+        'res <- nnmf(m, k, alpha=c(0, 0, alpha), beta=c(0, 0, beta))',
+        'predictions <- with(res, W %*% H)[inds]',
+        'sse <- sum((predictions - targets)^2)'
+    ])
