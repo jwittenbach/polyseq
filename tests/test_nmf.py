@@ -20,5 +20,5 @@ a[a<0] = 0
 #sse = _factor_error(a, k, 0, 0, 0.1, 10)
 #print(a)
 
-mse = nmf(a, 0.3, 6, np.arange(1, 7), [0.001], [0.001], nProcesses=4)
-print(sse)
+mse = nmf(a, 0.3, 6, [2, 3], [0, 0.001], [0, 0.001], nProcesses=4)
+print(mse)
