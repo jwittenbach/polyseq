@@ -25,7 +25,7 @@ def parallelize(f, argList, nProcs):
 
     def g(f, args, pid, valStore):
         for i, a in enumerate(args):
-            valStore[jobsPerProc*pid + i] = f(a)
+            valStore[jobsPerProc*pid + i] = f(*a)
 
     with Manager() as manager:
 

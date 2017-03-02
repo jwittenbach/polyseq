@@ -168,6 +168,13 @@ def _factor_error(data, k, alpha, beta, frac, seed):
     from pyper import R
     r = R()
 
+    print('seed:\t', seed)
+    print('k:\t', k)
+    print('alpha:\t', alpha)
+    print('beta:\t', beta)
+    print('frac:\t', frac)
+    print('---')
+
     r.m = data
     r.seed, r.k, r.alpha, r.beta, r.frac, r.seed = seed, k, alpha, beta, frac, seed
 
@@ -179,13 +186,13 @@ def _factor_error(data, k, alpha, beta, frac, seed):
         'm[inds] <- NA',
         'res <- nnmf(m, k, alpha=c(0, 0, alpha), beta=c(0, 0, beta))',
         'predictions <- with(res, W %*% H)[inds]',
-        'sse <- sum((predictions - targets)^2)'
+        'sse <- mean((predictions - targets)^2)'
     ])
 
-    print r.res['W']
-    print r.res['H']
-    print np.dot(r.res['W'], r.res['H'])
-    print r.inds
+    #print(r.res['W'])
+    #print(r.res['H'])
+    #print(np.dot(r.res['W'], r.res['H']))
+    #print(r.inds)
 
     return r.sse
 
@@ -209,7 +216,18 @@ def _factor(data, k, alpha, beta, seed):
 def nmf(data, frac, nreps, ks, alphas, betas, nProcesses=1):
     from .utils import parallelize
     from itertools import product
-    reps = np.arange(nreps)
-    args = list(product(reps, ks, alphas, betas))
-    args = [(data, k, a, b, frac, s) for (s, k, a, b) in args] 
 
+    seeds = np.arange(nreps)
+
+    params = [ks, alphas, betas, seeds]
+    args = list(product(*params))
+
+    def getError(k, alpha, beta, seed):
+        return _factor_error(data, k, alpha, beta, frac, seed)
+
+    results = parallelize(getError, args, nProcesses)
+    arr = np.array(results).reshape(*[len(p) for p in params])
+    avgError = arr.mean(axis=-1)
+    indBest = np.asarray(np.where(avgError == avgError.min())).flatten()
+    valBest = [p[i] for p, i in zip(params[:-1], indBest)]
+    return arr, valBest
