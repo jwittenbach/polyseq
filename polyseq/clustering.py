@@ -164,7 +164,7 @@ def hCluster(data, DimAlg, ClustAlg, nSamples=1000, nProcesses=1, cutoff=None,
         subclusters = [hCluster(data.loc[inds], DimAlg, *args) for inds in clusters]
         return {'k': k, 'clusters': clusters, 'subclusters': subclusters}
 
-def _factor(data, k, alpha, beta, frac, seed):
+def _factor_error(data, k, alpha, beta, frac, seed):
     from pyper import R
     r = R()
 
@@ -181,3 +181,35 @@ def _factor(data, k, alpha, beta, frac, seed):
         'predictions <- with(res, W %*% H)[inds]',
         'sse <- sum((predictions - targets)^2)'
     ])
+
+    print r.res['W']
+    print r.res['H']
+    print np.dot(r.res['W'], r.res['H'])
+    print r.inds
+
+    return r.sse
+
+def _factor(data, k, alpha, beta, seed):
+    from pyper import R
+    r = R()
+
+    r.m = data
+    r.seed, r.k, r.alpha, r.beta, r.seed = seed, k, alpha, beta, seed
+
+    r.run([
+        'library(NNLM)',
+        'set.seed(seed)',
+        'res <- nnmf(m, k, alpha=c(0, 0, alpha), beta=c(0, 0, beta))',
+        'w <- res$W',
+        'h <- res$H'
+    ])
+
+    return r.w, r.h
+
+def nmf(data, frac, nreps, ks, alphas, betas, nProcesses=1):
+    from .utils import parallelize
+    from itertools import product
+    reps = np.arange(nreps)
+    args = list(product(reps, ks, alphas, betas))
+    args = [(data, k, a, b, frac, s) for (s, k, a, b) in args] 
+
