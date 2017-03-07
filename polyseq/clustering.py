@@ -164,54 +164,72 @@ def hCluster(data, DimAlg, ClustAlg, nSamples=1000, nProcesses=1, cutoff=None,
         subclusters = [hCluster(data.loc[inds], DimAlg, *args) for inds in clusters]
         return {'k': k, 'clusters': clusters, 'subclusters': subclusters}
 
+
 def _factor_error(data, k, alpha, beta, frac, seed):
-    from pyper import R
-    r = R()
+    from rpy2 import robjects as ro
+    from rpy2.robjects.packages import importr
+    from rpy2.robjects import numpy2ri
+    import warnings
+
+
+    r = ro.r
+    numpy2ri.activate()
+
+    data = ro.Matrix(data)
+    #alpha = ro.vector([0, 0, alpha])
+    #beta = ro.vector([0, 0, beta])
+    alpha = ro.Vector([alpha, alpha, 0])
+    beta = ro.Vector([beta, beta, 0])
+
+    nnmf = importr('NNLM').nnmf
+    r("set.seed({})".format(seed))
+    L = r.length(data)
+    inds = r.sample(L, L.ro * frac)
+    targets = data.rx(inds)
+    data.rx[inds] = ro.NA_Real
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        res = nnmf(data, k, alpha=alpha, beta=beta)
+    w, h = res.rx('W')[0], res.rx('H')[0]
+    predictions = w.dot(h).rx(inds)
+    mse = r.mean((targets.ro - predictions).ro ** 2)
 
     print('seed:\t', seed)
     print('k:\t', k)
-    print('alpha:\t', alpha)
-    print('beta:\t', beta)
+    print('alpha:\t', np.array(alpha).flatten())
+    print('beta:\t', np.array(beta).flatten())
     print('frac:\t', frac)
+    print('mse: ', np.array(mse).flatten()[0])
     print('---')
+    #print('w: ', w)
+    #print('h: ', h)
+    #print('targets: ', targets)
+    #print('predictions: ', predictions)
+    #print('inds: ', inds)
 
-    r.m = data
-    r.seed, r.k, r.alpha, r.beta, r.frac, r.seed = seed, k, alpha, beta, frac, seed
-
-    r.run([
-        'library(NNLM)',
-        'set.seed(seed)',
-        'inds <- sample(length(m), frac*length(m))',
-        'targets <- m[inds]',
-        'm[inds] <- NA',
-        'res <- nnmf(m, k, alpha=c(0, 0, alpha), beta=c(0, 0, beta))',
-        'predictions <- with(res, W %*% H)[inds]',
-        'sse <- mean((predictions - targets)^2)'
-    ])
-
-    #print(r.res['W'])
-    #print(r.res['H'])
-    #print(np.dot(r.res['W'], r.res['H']))
-    #print(r.inds)
-
-    return r.sse
+    return mse[0]
 
 def _factor(data, k, alpha, beta, seed):
-    from pyper import R
-    r = R()
+    from rpy2 import robjects as ro
+    from rpy2.robjects.packages import importr
+    from rpy2.robjects import numpy2ri
+    import warnings
 
-    r.m = data
-    r.seed, r.k, r.alpha, r.beta, r.seed = seed, k, alpha, beta, seed
+    r = r.ro
+    numpy2ri.activate()
 
-    r.run([
-        'library(NNLM)',
-        'set.seed(seed)',
-        'res <- nnmf(m, k, alpha=c(0, 0, alpha), beta=c(0, 0, beta))',
-        'w <- res$W',
-        'h <- res$H'
-    ])
+    data = ro.Matrix(data)
+    alpha = ro.Vector([0, 0, alpha])
+    beta = ro.Vector([0, 0, beta])
 
-    return r.w, r.h
+    nnmf = importr('NNLM').nnmf
+    r("set.seed({})".format(seed))
+    with warnings.catch_warnings():
+        res = nnmf(data, k, alpha=alpha, beta=beta)
+    w, h = res.rx('W')[0], res.rx('H')[0]
+
+    return np.array(w), np.array(h)
+
 
 def nmf(data, frac, nreps, ks, alphas, betas, nProcesses=1):
     from .utils import parallelize
@@ -230,4 +248,5 @@ def nmf(data, frac, nreps, ks, alphas, betas, nProcesses=1):
     avgError = arr.mean(axis=-1)
     indBest = np.asarray(np.where(avgError == avgError.min())).flatten()
     valBest = [p[i] for p, i in zip(params[:-1], indBest)]
+    print('\n')
     return arr, valBest
