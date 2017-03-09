@@ -20,6 +20,7 @@ def clusterArgSort(data):
 def parallelize(f, argList, nProcs):
 
     from multiprocessing import Process, Manager
+    from numpy import asarray, argsort
 
     jobsPerProc = len(argList)//nProcs
 
@@ -46,4 +47,5 @@ def parallelize(f, argList, nProcs):
         for p in procs:
             p.terminate()
 
-        return valStore.values()
+        keys, vals = valStore.keys(), valStore.values()
+        return asarray(vals)[argsort(keys)]

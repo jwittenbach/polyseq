@@ -164,7 +164,6 @@ def hCluster(data, DimAlg, ClustAlg, nSamples=1000, nProcesses=1, cutoff=None,
         subclusters = [hCluster(data.loc[inds], DimAlg, *args) for inds in clusters]
         return {'k': k, 'clusters': clusters, 'subclusters': subclusters}
 
-
 def _factor_error(data, k, alpha, beta, frac, seed):
     from rpy2 import robjects as ro
     from rpy2.robjects.packages import importr
@@ -180,6 +179,10 @@ def _factor_error(data, k, alpha, beta, frac, seed):
     #beta = ro.vector([0, 0, beta])
     alpha = ro.Vector([alpha, alpha, 0])
     beta = ro.Vector([beta, beta, 0])
+
+    #w0 = ro.Matrix(np.zeros(data.shape[0], k))
+    #h0 = ro.Matrix(np.zeros(k, data.shape[1]))
+    #init = {'W': w0, 'H': h0}
 
     nnmf = importr('NNLM').nnmf
     r("set.seed({})".format(seed))
@@ -229,7 +232,6 @@ def _factor(data, k, alpha, beta, seed):
     w, h = res.rx('W')[0], res.rx('H')[0]
 
     return np.array(w), np.array(h)
-
 
 def nmf(data, frac, nreps, ks, alphas, betas, nProcesses=1):
     from .utils import parallelize
