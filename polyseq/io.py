@@ -1,5 +1,14 @@
 import numpy as np
 import pandas as pd
+from scipy.io import mmread
+
+from polyseq.expression_matrix import ExpressionMatrix
+
+def read_mtx(path):
+    return ExpressionMatrix(mmread(path).toarray().T)
+
+def read_numpy(path):
+    return ExpressionMatrix(np.load(path))
 
 def loadCellRanger(path, mapping=None):
     '''
@@ -17,7 +26,6 @@ def loadCellRanger(path, mapping=None):
     data: DataFrame
         Pandas DataFrame of unique transcript counts; rows = cells, cols = genes
     '''
-    from scipy.io import mmread
 
     if path[-1] != '/':
         path = path + '/'

@@ -5,7 +5,7 @@ version = '0.0.0'
 setup(
     name='polyseq',
     version=version,
-    description='RNA-seq data analysis in Python',
+    description='scRNAseq data analysis in Python',
     long_description='See https://github.com/jwittenbach/polyseq',
     author='jwittenbach',
     author_email='jason.wittenbach@gmail.com',

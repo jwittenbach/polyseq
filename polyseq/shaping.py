@@ -1,7 +1,6 @@
-def cullCells(data, counts=1, genes=None, numGenes=None, geneCounts=1):
+def cull_cells(data, counts=1, genes=None, numGenes=None, geneCounts=1):
     '''
-    Remove all cells that do not meet an expression criterion, based on
-    total counts and/or number of genes that it expression.
+    remove all cells that do not meet some criteria for reads
 
     Parameters:
     -----------
@@ -51,7 +50,7 @@ def cullCells(data, counts=1, genes=None, numGenes=None, geneCounts=1):
 
     return subset
 
-def cullGenes(data, counts=1, numCells=None, cellCounts=1):
+def cull_genes(data, counts=1, numCells=None, cellCounts=1):
     '''
     Remove all genes that do not meet a expression criterion, based on
     total counts and/or number of cells that express it.
