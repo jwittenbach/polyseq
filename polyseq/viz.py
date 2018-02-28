@@ -51,7 +51,7 @@ def violin(data, groups, genes=None, figsize=(20, 20), clusterGenes=True):
         ax.set_ylabel('')
         ax.set_title(col, rotation=45, y=1.08)
 
-def heatmap(data, figsize=(10, 10), cmap='viridis', rowNames=True, colNames=True, colNameRot=45, logNorm=False, colorBar=True):
+def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
     Draws a heatmap of gene expression levels across cells
 
@@ -77,7 +77,7 @@ def heatmap(data, figsize=(10, 10), cmap='viridis', rowNames=True, colNames=True
     # aspect = h/w
     # figsize = (w, h)
     # data.shape = (h, w)
-    if logNorm:
+    if log_norm:
         from matplotlib.colors import LogNorm
         norm = LogNorm()
     else:
@@ -89,8 +89,8 @@ def heatmap(data, figsize=(10, 10), cmap='viridis', rowNames=True, colNames=True
     im = plt.imshow(data, cmap=cmap, aspect=r, interpolation='none', norm=norm)
     ax = plt.gca()
 
-    if colorBar:
-        if logNorm:
+    if colorbar:
+        if log_norm:
             maxDecade = np.floor(np.log10(data.max().max())).astype(int)
             ticks = [10**k for k in range(maxDecade+1)]
             plt.colorbar(im, ticks=ticks, fraction=0.045, pad=0.04)
@@ -102,12 +102,12 @@ def heatmap(data, figsize=(10, 10), cmap='viridis', rowNames=True, colNames=True
             #cb.locator = tick_locator
             #cb.update_ticks()
 
-    if rowNames:
+    if row_names:
         ax.set_yticks(range(data.shape[0]))
         ax.set_yticklabels(data.index)
 
-    if colNames:
+    if col_names:
         ax.set_xticks(range(data.shape[1]))
         ax.set_xticklabels(data.columns)
         ax.xaxis.tick_top()
-        plt.xticks(rotation=colNameRot)
+        plt.xticks(rotation=col_rotation)

@@ -1,1 +1,1 @@
-from polyseq import io
+from polyseq import io, viz
