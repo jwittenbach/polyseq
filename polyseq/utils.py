@@ -11,31 +11,31 @@ def expand_tree(children):
 
     return expand_node(top)
 
-def clusterArgSort(data):
+def cluster_arg_sort(data):
     from sklearn.cluster import AgglomerativeClustering
     agg = AgglomerativeClustering()
     agg.fit(data)
     return expand_tree(agg.children_)
 
-def parallelize(f, argList, nProcs):
+def parallelize(f, arg_list, n_processes):
 
     from multiprocessing import Process, Manager
     from numpy import asarray, argsort
 
-    jobsPerProc = len(argList)//nProcs
+    jobs_per_proc = len(arg_list) // n_processes
 
-    def g(f, args, pid, valStore):
+    def run_function(f, args, pid, val_store):
         for i, a in enumerate(args):
-            valStore[jobsPerProc*pid + i] = f(*a)
+            val_store[jobs_per_proc * pid + i] = f(*a)
 
     with Manager() as manager:
 
-        valStore = manager.dict()
+        val_store = manager.dict()
         procs = []
 
-        for i in range(nProcs):
-            argSubset = argList[i*jobsPerProc : (i + 1)*jobsPerProc]
-            p = Process(target=g, args=(f, argSubset, i, valStore))
+        for i in range(n_processes):
+            args = arg_list[i * jobs_per_proc: (i + 1) * jobs_per_proc]
+            p = Process(target=run_function, args=(f, args, i, val_store))
             procs.append(p)
 
         for p in procs:
@@ -47,5 +47,5 @@ def parallelize(f, argList, nProcs):
         for p in procs:
             p.terminate()
 
-        keys, vals = valStore.keys(), valStore.values()
+        keys, vals = val_store.keys(), val_store.values()
         return asarray(vals)[argsort(keys)]
