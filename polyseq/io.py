@@ -10,7 +10,7 @@ def read_mtx(path):
 def read_numpy(path):
     return ExpressionMatrix(np.load(path))
 
-def loadCellRanger(path, mapping=None):
+def load_cellranger(path, mapping=None):
     '''
     load cells-by-genes matrix from CellRanger data
 
@@ -42,7 +42,7 @@ def loadCellRanger(path, mapping=None):
 
     return pd.DataFrame(data, columns=genes)
 
-def writeCSV(data, path, mapping=None):
+def write_csv(data, path, mapping=None):
     '''
     write data to an CSV file in (genes, cells) format
 

@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from polyseq.utils import cluster_arg_sort
+
 class ExpressionMatrix(object):
 
     def __init__(self, array):
@@ -65,6 +67,20 @@ class ExpressionMatrix(object):
             sorted = sorted[sorted.sum(axis=0).sort_values(ascending=False).index]
 
         return ExpressionMatrix(sorted)
+
+    def cluster_sort(self, sort_cells=True, sort_genes=True):
+
+        if sort_cells:
+            inds = cluster_arg_sort(self.data)
+            result = self.data.iloc[inds]
+        else:
+            result = self.data
+
+        if sort_genes:
+            inds = cluster_arg_sort(result.T)
+            result = result.iloc[:, inds]
+
+        return result
 
     def log_normalize(self):
         return ExpressionMatrix(np.log(self.data + 1))
