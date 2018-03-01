@@ -1,3 +1,8 @@
+from multiprocessing import Process, Array
+
+import numpy as np
+
+
 def expand_tree(children):
     n = children.shape[0] + 1
     top = 2*n - 2
@@ -17,35 +22,25 @@ def cluster_arg_sort(data):
     agg.fit(data)
     return expand_tree(agg.children_)
 
-def parallelize(f, arg_list, n_processes):
 
-    from multiprocessing import Process, Manager
-    from numpy import asarray, argsort
+def run_function(f, job_args, process_id, n_processes, arr):
+    for (i, args) in enumerate(job_args):
+        result = f(*args)
+        arr[process_id + i * n_processes] = result
 
-    jobs_per_proc = len(arg_list) // n_processes
+def parallelize(func, args, n_processes):
+    n_jobs = len(args)
 
-    def run_function(f, args, pid, val_store):
-        for i, a in enumerate(args):
-            val_store[jobs_per_proc * pid + i] = f(*a)
+    arr = Array('d', np.zeros(n_jobs))
+    procs = []
 
-    with Manager() as manager:
+    for i in range(n_processes):
+        job_args = args[i::n_processes]
+        p = Process(target=run_function, args=(func, job_args, i, n_processes, arr))
+        procs.append(p)
+        p.start()
 
-        val_store = manager.dict()
-        procs = []
+    for p in procs:
+        p.join()
 
-        for i in range(n_processes):
-            args = arg_list[i * jobs_per_proc: (i + 1) * jobs_per_proc]
-            p = Process(target=run_function, args=(f, args, i, val_store))
-            procs.append(p)
-
-        for p in procs:
-            p.start()
-
-        for p in procs:
-            p.join()
-
-        for p in procs:
-            p.terminate()
-
-        keys, vals = val_store.keys(), val_store.values()
-        return asarray(vals)[argsort(keys)]
+    return(np.array(arr[:]))

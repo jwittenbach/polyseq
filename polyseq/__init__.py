@@ -1,1 +1,1 @@
-from polyseq import io, viz
+from polyseq import io, viz, dim

@@ -5,28 +5,6 @@ from polyseq.utils import cluster_arg_sort
 
 class ExpressionMatrix(pd.DataFrame):
 
-    # def __init__(self, array):
-    #
-    #     if type(array) is  np.ndarray:
-    #         self.data = pd.DataFrame(array)
-    #     elif type(array) is pd.DataFrame:
-    #         self.data = array
-    #     else:
-    #         raise ValueError("unknown data type for an Expression matrix")
-    #
-    # def __repr__(self):
-    #     return self.data.__repr__()
-    #
-    # def _repr_html_(self):
-    #     return self.data._repr_html_()
-    #
-    # def head(self, n=5):
-    #     return ExpressionMatrix(self.data.head(n))
-    #
-    # @property
-    # def shape(self):
-    #     return self.data.shape
-
     def drop_cells(self, reads=None, num_genes=None, genes=None, read_threshold=1):
 
         if isinstance(genes, (int, str)):

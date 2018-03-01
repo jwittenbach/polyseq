@@ -20,7 +20,7 @@ data = pd.DataFrame(np.vstack([data1, data2_1, data2_2]))
 #plt.show()
 
 from sklearn.cluster import KMeans
-from polyseq.dimensionality import pca
+from polyseq.dim import pca
 
 res = hCluster(data, pca, KMeans, nSamples=100)
 print(res)
