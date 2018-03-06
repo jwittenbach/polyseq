@@ -54,8 +54,9 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
     if plot:
         plt.figure(figsize=(20, 5))
 
-
         with plt.style.context(['seaborn-talk', 'seaborn-whitegrid']):
+
+            # plot of distribution of bootstrapped PCs
             ax = plt.subplot(1, 2, 1)
             eps = 0.1
             min_score, max_score = (1 - eps) * scores.min(), (1 + eps) * scores.max()
@@ -71,6 +72,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             plt.xlabel('bootstrapped variance explained')
             plt.ylabel('density')
 
+            # plot of final PCs with cutoff
             plt.subplot(1, 2, 2)
             plt.plot(np.arange(max_pcs) + 1, pca.explained_variance_, 'o-')
             max_variance = pca.explained_variance_.max()
@@ -82,8 +84,5 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             plt.ylim(ylim)
             plt.xlabel('pc (ordered)')
             plt.ylabel('variance explained')
-
-
-
 
     return proj
