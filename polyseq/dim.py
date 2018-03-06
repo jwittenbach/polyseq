@@ -6,6 +6,7 @@ from sklearn.decomposition import RandomizedPCA
 from sklearn.neighbors.kde import KernelDensity
 
 from polyseq.utils import parallelize
+from polyseq.expression_matrix import ExpressionMatrix
 
 
 def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, plot=False):
@@ -85,4 +86,5 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             plt.xlabel('pc (ordered)')
             plt.ylabel('variance explained')
 
-    return proj
+    col_names = ["pc-{}".format(i) for i in range(proj.shape[0])]
+    return ExpressionMatrix(proj, columns=col_names)
