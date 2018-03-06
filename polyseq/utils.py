@@ -18,7 +18,9 @@ def expand_tree(children):
 
 def cluster_arg_sort(data):
     from sklearn.cluster import AgglomerativeClustering
-    agg = AgglomerativeClustering()
+    from sklearn.neighbors import kneighbors_graph
+    connectivity = kneighbors_graph(data, 50)
+    agg = AgglomerativeClustering(linkage='ward', connectivity=connectivity)
     agg.fit(data)
     return expand_tree(agg.children_)
 
