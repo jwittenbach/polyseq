@@ -3,7 +3,6 @@ import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import RandomizedPCA
-from sklearn.neighbors.kde import KernelDensity
 
 from polyseq.utils import parallelize
 from polyseq.expression_matrix import ExpressionMatrix
