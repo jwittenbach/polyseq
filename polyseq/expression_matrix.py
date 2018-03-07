@@ -5,7 +5,7 @@ from polyseq.utils import cluster_arg_sort
 
 class ExpressionMatrix(pd.DataFrame):
 
-    def drop_cells(self, counts=None, num_genes=None, genes=None, read_threshold=1):
+    def drop_cells(self, counts=None, num_genes=None, genes=None, count_threshold=1):
 
         if isinstance(genes, (int, str)):
             genes = [genes]
@@ -16,19 +16,33 @@ class ExpressionMatrix(pd.DataFrame):
         if counts is not None:
             subset = subset[relevant.sum(axis=1) >= counts]
         if num_genes is not None:
-            subset = subset[(relevant >= read_threshold).sum(axis=1) >= num_genes]
+            subset = subset[(relevant >= count_threshold).sum(axis=1) >= num_genes]
 
         return ExpressionMatrix(subset)
 
-    def drop_genes(self, counts=None, num_cells=None, read_threshold=1):
+    def drop_genes(self, counts=None, num_cells=None, count_threshold=1):
 
         subset = self
         if counts is not None:
             subset = subset.loc[:, subset.sum(axis=0) >= counts]
         if num_cells is not None:
-            subset = subset.loc[:, (subset >= read_threshold).sum(axis=0) >= num_cells]
+            subset = subset.loc[:, (subset >= count_threshold).sum(axis=0) >= num_cells]
 
         return ExpressionMatrix(subset)
+
+    def downsample(self, fraction=None, number=None):
+
+        if fraction is not None:
+            if isinstance(fraction, (int, float)):
+                fraction = (fraction, fraction)
+            number = (int(np.round(f * s)) for f, s in zip(fraction, self.shape))
+
+        if isinstance(number, int):
+            number = (number, number)
+
+        inds = [np.random.choice(np.arange(s), n, replace=False) for n, s in zip(number, self.shape)]
+
+        return ExpressionMatrix(self.iloc[inds[0]].iloc[:, inds[1]])
 
     def sort(self, sort_cells=True, sort_genes=True, genes=None):
         if genes is None:
