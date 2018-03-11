@@ -5,7 +5,7 @@ from polyseq.utils import cluster_arg_sort
 
 class ExpressionMatrix(pd.DataFrame):
 
-    def drop_cells(self, counts=None, num_genes=None, genes=None, count_threshold=1):
+    def drop_cells(self, umis=None, num_genes=None, genes=None, umi_threshold=1):
 
         if isinstance(genes, (int, str)):
             genes = [genes]
@@ -13,20 +13,20 @@ class ExpressionMatrix(pd.DataFrame):
         relevant = self if genes is None else self[genes]
 
         subset = self
-        if counts is not None:
-            subset = subset[relevant.sum(axis=1) >= counts]
+        if umis is not None:
+            subset = subset[relevant.sum(axis=1) >= umis]
         if num_genes is not None:
-            subset = subset[(relevant >= count_threshold).sum(axis=1) >= num_genes]
+            subset = subset[(relevant >= umi_threshold).sum(axis=1) >= num_genes]
 
         return ExpressionMatrix(subset)
 
-    def drop_genes(self, counts=None, num_cells=None, count_threshold=1):
+    def drop_genes(self, umis=None, num_cells=None, umi_threshold=1):
 
         subset = self
-        if counts is not None:
-            subset = subset.loc[:, subset.sum(axis=0) >= counts]
+        if umis is not None:
+            subset = subset.loc[:, subset.sum(axis=0) >= umis]
         if num_cells is not None:
-            subset = subset.loc[:, (subset >= count_threshold).sum(axis=0) >= num_cells]
+            subset = subset.loc[:, (subset >= umi_threshold).sum(axis=0) >= num_cells]
 
         return ExpressionMatrix(subset)
 

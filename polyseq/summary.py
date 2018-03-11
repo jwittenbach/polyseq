@@ -5,20 +5,20 @@ import matplotlib.pyplot as plt
 from polyseq.viz import kde_plot, STYLE_CONTEXTS
 
 
-def summarize(data, count_threshold=1, plot=True):
+def summarize(data, umi_threshold=1, plot=True):
 
     counts_by_cell = data.sum(axis=1)
-    genes_expressed = (data >= count_threshold).sum(axis=1)
+    genes_expressed = (data >= umi_threshold).sum(axis=1)
     counts_by_gene = data.sum(axis=0)
-    cells_expressed = (data > count_threshold).sum(axis=0)
+    cells_expressed = (data > umi_threshold).sum(axis=0)
 
     data = data.__array__().flatten()
     distributions = {
-        'counts': data,
-        'counts above {}'.format(count_threshold - 1): data[data >= count_threshold],
-        'counts per cell cell': counts_by_cell,
+        'umis': data,
+        'umis above {}'.format(umi_threshold - 1): data[data >= umi_threshold],
+        'umis per cell cell': counts_by_cell,
         'genes expressed': genes_expressed,
-        'counts per gene': counts_by_gene,
+        'umis per gene': counts_by_gene,
         'cells expressing': cells_expressed,
     }
 
@@ -48,9 +48,9 @@ def summarize(data, count_threshold=1, plot=True):
             n_h, n_w = 2, 2
             ax = plt.subplot(n_h, n_w, 1)
             kde_plot(counts_by_cell, bw_factor=bw_factor)
-            ax.set_xlabel('# of counts')
+            ax.set_xlabel('# of umis')
             ax.set_ylabel('density')
-            ax.set_title('counts per cell')
+            ax.set_title('umis per cell')
 
             ax = plt.subplot(n_h, n_w, 2)
             kde_plot(genes_expressed, bw_factor=bw_factor)
@@ -60,9 +60,9 @@ def summarize(data, count_threshold=1, plot=True):
 
             ax = plt.subplot(n_h, n_w, 3)
             kde_plot(counts_by_gene, bw_factor=bw_factor)
-            ax.set_xlabel('# of counts')
+            ax.set_xlabel('# of umis')
             ax.set_ylabel('density')
-            ax.set_title('counts per gene')
+            ax.set_title('umis per gene')
 
             ax = plt.subplot(n_h, n_w, 4)
             kde_plot(cells_expressed, bw_factor=bw_factor)
@@ -74,7 +74,7 @@ def summarize(data, count_threshold=1, plot=True):
             #ax = plt.subplot(n_h, n_w, 5)
             ax = plt.gca()
             plt.scatter(counts_by_cell, genes_expressed, s=15)
-            ax.set_xlabel('# of counts')
+            ax.set_xlabel('# of umis')
             ax.set_ylabel('# of genes expressed')
             ax.set_title('corr coef: {:.3f}'.format(np.corrcoef(np.vstack([counts_by_cell, genes_expressed]))[0, 1]))
 
