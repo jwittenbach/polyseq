@@ -1,6 +1,10 @@
-from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
+from matplotlib import pyplot as plt
+from sklearn.neighbors.kde import KernelDensity
+
+
+STYLE_CONTEXTS = ['seaborn-talk', 'seaborn-whitegrid']
 
 def single_violin(df, col, ax=None):
     sns.violinplot(y=df['group'], x=df[col], order=np.sort(df['group'].unique()),
@@ -111,3 +115,21 @@ def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=T
         ax.set_xticklabels(data.columns)
         ax.xaxis.tick_top()
         plt.xticks(rotation=col_rotation)
+
+def kde_plot(samples, ax=None, eps=0.1, bw_factor=10.0):
+    if ax is None:
+        ax = plt.gca()
+
+    n_samples = len(samples)
+
+    min_score, max_score = (1 - eps) * samples.min(), (1 + eps) * samples.max()
+    bandwidth = bw_factor * (max_score - min_score) / n_samples
+
+    kde = KernelDensity(kernel='gaussian', bandwidth=bandwidth).fit(samples[:, np.newaxis])
+    s = np.linspace(min_score, max_score, 100)
+    density = np.exp(kde.score_samples(s[:, np.newaxis]))
+
+    ax.fill_between(s.squeeze(), 0, density.squeeze())
+    ylim = [0, (1 + eps) * density.max()]
+    ax.set_xlim(min_score, max_score)
+    ax.set_ylim(*ylim)

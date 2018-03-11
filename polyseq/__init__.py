@@ -1,1 +1,1 @@
-import polyseq.io, polyseq.clustering, polyseq.dim, polyseq.summary
+from . import io, clustering, dim, summary
