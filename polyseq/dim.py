@@ -48,6 +48,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
     inds = np.where(pca.explained_variance_ < cutoff)[0]
     if inds.shape == (0,):
         print("all PCs computed are significant; you might try increasing max_pcs")
+        n_pcs = max_pcs
     else:
         n_pcs = inds[0]
         proj = proj[:, :n_pcs]
@@ -87,4 +88,4 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             plt.ylabel('variance explained')
 
     col_names = ["pc-{}".format(i) for i in range(proj.shape[1])]
-    return ExpressionMatrix(proj, columns=col_names)
+    return ExpressionMatrix(proj, columns=col_names), scores, pca.explained_variance_
