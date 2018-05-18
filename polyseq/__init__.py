@@ -1,1 +1,1 @@
-from . import io, clustering, dim, summary
+from . import io, clustering, dim, summary, regression
