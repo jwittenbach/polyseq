@@ -1,4 +1,0 @@
-numpy
-scipy
-matplotlib
-git+git://github.com/jacoblevine/PhenoGraph#egg=phenograph
