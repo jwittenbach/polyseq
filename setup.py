@@ -11,14 +11,14 @@ setup(
     author_email='jason.wittenbach@gmail.com',
     url='https://github.com/jwittenbach/polyseq',
     packages=find_packages(exclude=['tests']),
-    install_requires=[
-        'numpy',
-        'sklearn',
-        'pandas',
-        'matplotlib',
-        'phenograph'
-    ],
-    dependency_links = [
-        'https://github.com/jacoblevine/PhenoGraph#egg=phenograph'
-    ]
+    #install_requires=[
+    #    'numpy',
+    #    'sklearn',
+    #    'pandas',
+    #    'matplotlib',
+    #    'phenograph'
+    #],
+    #dependency_links = [
+    #    'https://github.com/jacoblevine/PhenoGraph/archive/master.zip'
+    #]
 )
