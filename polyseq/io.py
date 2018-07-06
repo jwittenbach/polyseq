@@ -1,66 +1,17 @@
-import numpy as np
 import pandas as pd
 from scipy.io import mmread
 
 from polyseq.expression_matrix import ExpressionMatrix
 
-def read_mtx(path):
-    return ExpressionMatrix(mmread(path).toarray().T)
+def read_mtx(exp_matrix_path, genes=None):
+    exp_matrix = pd.DataFrame(mmread(exp_matrix_path).toarray().T)
+    if genes is not None:
+        exp_matrix = exp_matrix.rename(genes, axis=1)
+    return ExpressionMatrix(exp_matrix)
 
-def read_numpy(path):
-    return ExpressionMatrix(np.load(path))
+def read_cellranger(path):
+    genes = pd.read_csv(path + "genes.tsv", delimiter='\t', header=None)[1]
+    return read_mtx(path + "matrix.mtx", genes=genes)
 
-def load_cellranger(path, mapping=None):
-    '''
-    load cells-by-genes matrix from CellRanger data
-
-    Parameters:
-    -----------
-    path: string
-        path to directory of output "cellranger count"
-    mapping: string, optional, default=None
-        path to CSV file containing a mapping between gene IDs and gene names
-
-    Returns:
-    --------
-    data: DataFrame
-        Pandas DataFrame of unique transcript counts; rows = cells, cols = genes
-    '''
-
-    if path[-1] != '/':
-        path = path + '/'
-
-    data = mmread(path + 'matrix.mtx').toarray().T
-
-    gene_ids = pd.read_csv(path + 'genes.tsv', sep='\t', header=None)
-
-    if mapping is not None:
-        mapping = pd.read_csv(mapping, header=None)
-        genes = np.array(mapping.set_index(0)[1][gene_ids[0]])
-    else:
-        genes = gene_ids
-
-    return pd.DataFrame(data, columns=genes)
-
-def write_csv(data, path, mapping=None):
-    '''
-    write data to an CSV file in (genes, cells) format
-
-    Parameters:
-    -----------
-    data: DataFrame
-        Pandas DataFrame of counts indexed as (cells, genes)
-    path: string
-        Path to output file
-    mapping: string, default=None
-        Path to a CSV file containing a mapping between gene IDs and gene
-        names. If specified, gene IDs will be included in the file.
-    '''
-    final = data.T.reset_index().rename(columns={"index": "gene names"})
-    if mapping is not None:
-        mapping = pd.read_csv(mapping, header=None)
-        final['gene ID'] = mapping.set_index(1)[0][data.columns].values
-        d = final.shape[1]
-        final = final.iloc[:, [d-1] + range(d-1)]
-
-    final.to_csv(path, index=False)
+def read_pickle(path):
+    return ExpressionMatrix(pd.read_pickle(path))

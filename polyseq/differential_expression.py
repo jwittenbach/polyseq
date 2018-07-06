@@ -25,7 +25,7 @@ def upregulated(data, clusters, n=20):
     results = []
 
     for i in np.unique(clusters):
-        print(i)
+        print("finding genes for cluster {}".format(i+1))
         labels = clusters == i
         svc.fit(data, labels)
         w = svc.coef_[0]

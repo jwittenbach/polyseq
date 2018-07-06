@@ -77,3 +77,23 @@ class ExpressionMatrix(pd.DataFrame):
     def log_normalize(self):
         return ExpressionMatrix(np.log(self + 1))
 
+    #def to_csv(self, path, mapping=None):
+    #    '''
+    #    write data to an CSV file in (genes, cells) format
+
+    #    Parameters:
+    #    -----------
+    #    path: string
+    #        Path to output file
+    #    mapping: string, default=None
+    #        Path to a CSV file containing a mapping between gene IDs and gene
+    #        names. If specified, gene IDs will be included in the file.
+    #    '''
+    #    final = self.T.reset_index().rename(columns={"index": "gene names"})
+    #    if mapping is not None:
+    #        mapping = pd.read_csv(mapping, header=None)
+    #        final['gene ID'] = mapping.set_index(1)[0][data.columns].values
+    #        d = final.shape[1]
+    #        final = final.iloc[:, [d-1] + range(d-1)]
+    #
+    #    final.to_csv(path, index=False)

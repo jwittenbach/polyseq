@@ -20,7 +20,9 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
             pca = RandomizedPCA(n_components=k)
-        return pca.fit_transform(zscored)
+        proj = pca.fit_transform(zscored)
+        col_names = ["pc-{}".format(i) for i in range(proj.shape[1])]
+        return ExpressionMatrix(proj, columns=col_names)
 
     def bootstrap_pc(seed):
         np.random.seed(seed)
