@@ -1,4 +1,5 @@
+sklearn
 numpy
-scipy
 matplotlib
-git+git://github.com/jacoblevine/PhenoGraph#egg=phenograph
+scipy
+https://github.com/jacoblevine/phenograph/archive/master.zip
