@@ -1,4 +1,4 @@
-from multiprocessing import Process, Array
+import multiprocessing as mp
 
 import numpy as np
 
@@ -33,12 +33,12 @@ def run_function(f, job_args, process_id, n_processes, arr):
 def parallelize(func, args, n_processes):
     n_jobs = len(args)
 
-    arr = Array('d', np.zeros(n_jobs))
+    arr = mp.Array('d', np.zeros(n_jobs))
     procs = []
 
     for i in range(n_processes):
         job_args = args[i::n_processes]
-        p = Process(target=run_function, args=(func, job_args, i, n_processes, arr))
+        p = mp.Process(target=run_function, args=(func, job_args, i, n_processes, arr))
         procs.append(p)
         p.start()
 

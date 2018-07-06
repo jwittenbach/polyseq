@@ -76,3 +76,4 @@ class ExpressionMatrix(pd.DataFrame):
 
     def log_normalize(self):
         return ExpressionMatrix(np.log(self + 1))
+

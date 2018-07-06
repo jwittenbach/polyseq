@@ -20,15 +20,15 @@ def upregulated(data, clusters, n=20):
         2D array containing the sorted indices the top features defining each
         cluster, or size (clusters, n)
     '''
-
-    data = data.__array__()
-
-    svc = LinearSVC()
-    svc.fit(data, clusters)
+    svc = LinearSVC(verbose=True)
 
     results = []
 
-    for w in svc.coef_:
+    for i in np.unique(clusters):
+        print(i)
+        labels = clusters == i
+        svc.fit(data, labels)
+        w = svc.coef_[0]
         z = w / np.sqrt((w**2).sum())
         pos_inds = np.where(z > 0)[0]
         pos_vals = z[pos_inds]
@@ -36,4 +36,4 @@ def upregulated(data, clusters, n=20):
         top_k = pos_inds[pos_top_k]
         results.append(top_k)
 
-    return np.array(results)
+    return data.columns[np.array(results)].tolist()
