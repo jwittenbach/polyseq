@@ -25,7 +25,7 @@ def summarize(data, umi_threshold=1, plot=True):
     distributions = {
         'umis': data,
         'umis above {}'.format(umi_threshold - 1): data[data >= umi_threshold],
-        'umis per cell cell': counts_by_cell,
+        'umis per cell': counts_by_cell,
         'genes expressed': genes_expressed,
         'umis per gene': counts_by_gene,
         'cells expressing': cells_expressed,
