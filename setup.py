@@ -11,6 +11,7 @@ setup(
     author_email='jason.wittenbach@gmail.com',
     url='https://github.com/jwittenbach/polyseq',
     packages=find_packages(exclude=['tests']),
+    include_package_data=True
     #install_requires=[
     #    'numpy',
     #    'sklearn',

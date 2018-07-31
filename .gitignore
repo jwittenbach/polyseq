@@ -1,0 +1,11 @@
+# directory to download examples
+polyseq/examples/*
+!polyseq/examples/.gitkeep
+
+# python stuff
+*.egg*
+__pycache__
+*.pyc
+.DS_Store
+.ipynb_checkpoints
+.idea

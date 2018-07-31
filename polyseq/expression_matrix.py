@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from scipy.io import mmwrite
+from scipy.sparse import coo_matrix
 
 from polyseq.utils import cluster_arg_sort
 
@@ -34,15 +36,16 @@ class ExpressionMatrix(pd.DataFrame):
 
         if fraction is not None:
             if isinstance(fraction, (int, float)):
-                fraction = (fraction, fraction)
+                fraction = (fraction, 1)
             number = (int(np.round(f * s)) for f, s in zip(fraction, self.shape))
 
         if isinstance(number, int):
-            number = (number, number)
+            number = (number, self.shape[1])
 
-        inds = [np.random.choice(np.arange(s), n, replace=False) for n, s in zip(number, self.shape)]
+        inds = [np.random.choice(np.arange(s), n, replace=False) if n < s
+                else slice(None) for n, s in zip(number, self.shape)]
 
-        return ExpressionMatrix(self.iloc[inds[0]].iloc[:, inds[1]])
+        return ExpressionMatrix(self.iloc[tuple(inds)])
 
     def sort(self, sort_cells=True, sort_genes=True, genes=None):
         if genes is None:
@@ -76,6 +79,11 @@ class ExpressionMatrix(pd.DataFrame):
 
     def log_normalize(self):
         return ExpressionMatrix(np.log(self + 1))
+
+    def to_cellranger(self, path):
+        arr = coo_matrix(np.array(self).T)
+        mmwrite(path + "matrix.mtx", arr)
+        self.columns.to_series().to_csv(path + "genes.tsv", sep="\t")
 
     #def to_csv(self, path, mapping=None):
     #    '''
