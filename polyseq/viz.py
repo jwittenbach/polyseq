@@ -1,59 +1,44 @@
 import seaborn as sns
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib.cm as cm
 from sklearn.neighbors.kde import KernelDensity
 
 
 STYLE_CONTEXTS = ['seaborn-talk', 'seaborn-whitegrid']
 
-def single_violin(df, col, ax=None):
-    sns.violinplot(y=df['group'], x=df[col], order=np.sort(df['group'].unique()),
-                   orient="h", ax=ax, scale='width', bw=0.3, gridsize=50, inner=None, linewidth=2)
-    ax.set_xlim([0, df.groupby('group')[col].apply(lambda x: np.percentile(x, 100)).max()])
 
-def violin(data, groups, genes=None, figsize=(20, 20), clusterGenes=True):
-    '''
-    Draws a violin plot showing distributions of expression across groups
-
-    Parameters:
-    -----------
-    data: DataFrame
-        Pandas DataFrame of counts indexed as (cells, genes)
-    groups: list
-        List of group identifiers for cells of length data.shape[0]
-    genes: list of strings, defualt=None
-        List of genes to include in the plot. If None, then all genes will
-        be used.
-    figsize: tuple of lenth 2, default=(20, 20)
-        Size of figure
-    clusterGenes: bool, default=True
-        Whether or not to do a hierarchical clusther on mean gene expreesion
-        across groups in order to order genes.
-    '''
+def violins(data, genes, groups=None, cluster_genes=True, figsize=(20, 20)):
     ncols = len(genes)
-    if genes is None:
-        subset = genes.copy()
-    else:
-        subset = data.copy()[genes]
-    subset['group'] = groups
-        
-    if clusterGenes:
-        from .utils import clusterArgSort
+    subset = data.copy()[genes]
 
-        X = subset.groupby('group').mean().__array__().T
-        order = clusterArgSort(X)
-    else:
+    if groups is not None:
+        subset['group'] = groups
+
+        if cluster_genes:
+            from .utils import cluster_arg_sort
+
+            X = subset.groupby('group').mean().__array__().T
+            order = cluster_arg_sort(X)
+
+    if not cluster_genes:
         order = range(len(genes))
 
     f, axes = plt.subplots(1, ncols, sharey=True, figsize=figsize)
     f.subplots_adjust(wspace=0)
 
+    cmap = cm.get_cmap('tab10')
+
     for i in range(len(genes)):
+        c = cmap((i % 10) / 10)
         ax, col = axes[i], subset.columns[order[i]] 
         ax.xaxis.set_visible(False)
-        single_violin(subset, col, ax)
+        sns.violinplot(y=groups, x=data[col], order=np.sort(np.unique(groups)), color=c,
+                       orient="h", ax=ax, scale='width', bw=0.3, gridsize=50, inner=None, linewidth=2)
         ax.set_ylabel('')
         ax.set_title(col, rotation=45, y=1.08)
+        if groups is not None:
+            ax.set_xlim([0, subset.groupby('group')[col].apply(lambda x: np.percentile(x, 100)).max()])
 
 def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
