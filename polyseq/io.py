@@ -1,4 +1,5 @@
 from pkg_resources import resource_filename
+from subprocess import call
 
 import pandas as pd
 from scipy.io import mmread
@@ -26,3 +27,10 @@ def read_pickle(path):
 def load_example():
     path = resource_filename(__name__, "examples")
     return read_cellranger(path)
+
+def download_example_data():
+    path = resource_filename(__name__, "examples")
+    url = "https://raw.githubusercontent.com/jwittenbach/polyseq/master/examples/"
+    cmd = "cd {} && curl -O {}"
+    call(cmd.format(path, url + "genes.tsv"), shell=True)
+    call(cmd.format(path, url + "matrix.mtx.gz"), shell=True)
