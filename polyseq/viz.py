@@ -40,6 +40,16 @@ def violins(data, genes, groups=None, cluster_genes=True, figsize=(20, 20)):
         if groups is not None:
             ax.set_xlim([0, subset.groupby('group')[col].apply(lambda x: np.percentile(x, 100)).max()])
 
+def scatter(data, color_by=None, **kwargs):
+    if color_by is None:
+        c = None
+    elif color_by == "sample":
+        c = data.index.labels[data.index.names.index("sample")]
+
+    x = data.iloc[:, 0]
+    y = data.iloc[:, 1]
+    plt.scatter(x, y, c=c, **kwargs)
+
 def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
     Draws a heatmap of gene expression levels across cells
