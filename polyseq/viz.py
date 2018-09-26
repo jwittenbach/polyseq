@@ -43,8 +43,8 @@ def violins(data, genes, groups=None, cluster_genes=True, figsize=(20, 20)):
 def scatter(data, color_by=None, **kwargs):
     if color_by is None:
         c = None
-    elif color_by == "sample":
-        c = data.index.labels[data.index.names.index("sample")]
+    else:
+        c = data.index.labels[data.index.names.index(color_by)]
 
     x = data.iloc[:, 0]
     y = data.iloc[:, 1]

@@ -7,12 +7,12 @@ from polyseq.utils import cluster_arg_sort
 
 class ExpressionMatrix(pd.DataFrame):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._finalize()
-
-    def _finalize(self):
-        self.index = pd.Index.rename(self.index, "cell")
+    def _finalize(self, index=None):
+        if index is None:
+            self.index = pd.Index.rename(self.index, "cell")
+        else:
+            self.index = index
+        return self
 
     def drop_cells(self, umis=None, num_genes=None, genes=None, umi_threshold=1):
 

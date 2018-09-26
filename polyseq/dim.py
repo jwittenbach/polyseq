@@ -4,10 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import RandomizedPCA
 from sklearn.neighbors.kde import KernelDensity
+from sklearn.manifold import TSNE
 
 from polyseq.utils import parallelize
 from polyseq.expression_matrix import ExpressionMatrix
 
+
+def tsne(data, **kwargs):
+    '''
+    wrapper for sklearn TSNE algorithm
+    '''
+    tsne = TSNE(**kwargs).fit_transform(data)
+    col_names = ["tsne-{}".format(i) for i in range(tsne.shape[1])]
+    return ExpressionMatrix(tsne, columns=col_names)._finalize(index=data.index)
 
 def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, plot=False):
     '''
@@ -22,7 +31,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             pca = RandomizedPCA(n_components=k)
         proj = pca.fit_transform(zscored)
         col_names = ["pc-{}".format(i) for i in range(proj.shape[1])]
-        return ExpressionMatrix(proj, columns=col_names)
+        return ExpressionMatrix(proj, columns=col_names)._finalize(index=data.index)
 
     def bootstrap_pc(seed):
         np.random.seed(seed)
@@ -90,4 +99,4 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
             plt.ylabel('variance explained')
 
     col_names = ["pc-{}".format(i) for i in range(proj.shape[1])]
-    return ExpressionMatrix(proj, columns=col_names), scores, pca.explained_variance_
+    return ExpressionMatrix(proj, columns=col_names)._finalize(index=data.index), scores, pca.explained_variance_

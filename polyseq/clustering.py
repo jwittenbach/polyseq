@@ -1,9 +1,30 @@
+import pandas as pd
+import numpy as np
 from phenograph.cluster import cluster
 
 def graph_cluster(data, n_neighbors):
     clusters, graph, q = cluster(data, k=n_neighbors)
-    return clusters
 
+    if "cluster" in data.index.names:
+        ind = data.index.names.index("cluster")
+        new_labels = [
+            labels if i != ind else clusters 
+            for i, labels in enumerate(data.index.labels)
+        ]
+        new_levels = [
+            levels if i != ind else np.unique(clusters)
+            for i, levels in enumerate(data.index.levels)
+        ]
+        new_names = data.index.names
+    else:
+        new_labels = data.index.labels + [clusters]
+        new_levels = data.index.levels + [np.unique(clusters)]
+        new_names = data.index.names + ["cluster"]
+
+    data.index = pd.MultiIndex(
+        levels=new_levels, labels=new_labels, names=new_names)
+
+    return data
 
 # import numpy as np
 # import matplotlib.pyplot as plt
