@@ -22,7 +22,7 @@ def read_cellranger(path):
     return expression_matrix._finalize()
 
 def read_pickle(path):
-    return ExpressionMatrix(pd.read_pickle(path))._finalize()
+    return ExpressionMatrix(pd.read_pickle(path))
 
 def load_example():
     path = resource_filename(__name__, "examples")

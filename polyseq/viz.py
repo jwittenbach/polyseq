@@ -40,15 +40,23 @@ def violins(data, genes, groups=None, cluster_genes=True, figsize=(20, 20)):
         if groups is not None:
             ax.set_xlim([0, subset.groupby('group')[col].apply(lambda x: np.percentile(x, 100)).max()])
 
-def scatter(data, color_by=None, **kwargs):
-    if color_by is None:
-        c = None
-    else:
-        c = data.index.labels[data.index.names.index(color_by)]
-
+def scatter(data, color_by=None, cmap=None, **kwargs):
     x = data.iloc[:, 0]
     y = data.iloc[:, 1]
-    plt.scatter(x, y, c=c, **kwargs)
+
+    if color_by is None:
+        plt.scatter(x, y, cmap=cmap, **kwargs)
+    else:
+        color_idx = data.index.names.index(color_by)
+        color_levels = data.index.levels[color_idx]
+        color_labels = data.index.labels[color_idx]
+
+        n_levels = len(color_levels)
+        colors = cm.get_cmap(cmap)(range(n_levels))
+
+        for i in range(n_levels):
+            mask = color_labels == i
+            plt.scatter(x[mask], y[mask], c=colors[i], **kwargs)
 
 def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
