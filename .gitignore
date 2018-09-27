@@ -1,6 +1,9 @@
-# directory to download examples
-polyseq/examples/*
-!polyseq/examples/.gitkeep
+# directories to download examples
+polyseq/examples/sample_brain
+!polyseq/examples/sample_brain/.gitkeep
+polyseq/examples/sample_vnc
+!polyseq/examples/sample_vnc/.gitkeep
+
 
 # python stuff
 *.egg*

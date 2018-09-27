@@ -24,13 +24,28 @@ def read_cellranger(path):
 def read_pickle(path):
     return ExpressionMatrix(pd.read_pickle(path))
 
-def load_example():
-    path = resource_filename(__name__, "examples")
-    return read_cellranger(path)._finalize()
+def load_example(example="brain"):
+    '''
+    options are "brain" and "vnc"
+    '''
+    path = resource_filename(__name__, "examples/sample_{}".format(example))
+    return read_cellranger(path)
 
 def download_example_data():
+    from itertools import product
+
     path = resource_filename(__name__, "examples")
     url = "https://raw.githubusercontent.com/jwittenbach/polyseq/master/examples/"
+    directories = [
+        "/sample_brain",
+        "/sample_vnc"
+    ]
+    file_names = [
+        "/genes.tsv",
+        "/matrix.mtx.gz"
+    ]
+
     cmd = "cd {} && curl -O {}"
-    call(cmd.format(path, url + "genes.tsv"), shell=True)
-    call(cmd.format(path, url + "matrix.mtx.gz"), shell=True)
+    for directory, file_name in product(directories, file_names):
+        call(cmd.format(path + directory, url + directory + file_name), shell=True)
+
