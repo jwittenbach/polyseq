@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.svm import LinearSVC
 
-def upregulated(data, clusters, n=20):
+def upregulated(data, n=20):
     '''
     computes top features that differentiate each cluster from others using SVM
 
@@ -20,6 +20,7 @@ def upregulated(data, clusters, n=20):
         2D array containing the sorted indices the top features defining each
         cluster, or size (clusters, n)
     '''
+    clusters = data.clusters
     svc = LinearSVC(verbose=True)
 
     results = []

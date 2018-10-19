@@ -14,6 +14,32 @@ class ExpressionMatrix(pd.DataFrame):
             self.index = index
         return self
 
+    @property
+    def clusters(self):
+        if "cluster" in self.index.names:
+            return np.array(self.index.get_level_values("cluster"))
+    
+    @clusters.setter
+    def clusters(self, clusters):
+        if "cluster" in self.index.names:
+            ind = self.index.names.index("cluster")
+            new_labels = [
+                labels if i != ind else clusters 
+                for i, labels in enumerate(self.index.labels)
+            ]
+            new_levels = [
+                levels if i != ind else np.unique(clusters)
+                for i, levels in enumerate(self.index.levels)
+            ]
+            new_names = self.index.names
+        else:
+            new_labels = self.index.labels + [clusters]
+            new_levels = self.index.levels + [np.unique(clusters)]
+            new_names = self.index.names + ["cluster"]
+
+        self.index = pd.MultiIndex(
+            levels=new_levels, labels=new_labels, names=new_names)
+
     def drop_cells(self, umis=None, num_genes=None, genes=None, umi_threshold=1):
 
         if isinstance(genes, (int, str)):

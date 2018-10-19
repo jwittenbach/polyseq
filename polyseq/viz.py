@@ -8,9 +8,11 @@ from sklearn.neighbors.kde import KernelDensity
 STYLE_CONTEXTS = ['seaborn-talk', 'seaborn-whitegrid']
 
 
-def violins(data, genes, groups=None, cluster_genes=True, figsize=(20, 20)):
+def violins(data, genes, group_by=None, cluster_genes=True, figsize=(20, 20)):
     ncols = len(genes)
     subset = data.copy()[genes]
+
+    groups = data.index.get_level_values(group_by)
 
     if groups is not None:
         subset['group'] = groups
