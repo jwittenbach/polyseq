@@ -1,7 +1,9 @@
+import collections
+
 import seaborn as sns
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib.cm as cm
+import matplotlib as mpl
 from sklearn.neighbors.kde import KernelDensity
 
 
@@ -29,7 +31,7 @@ def violins(data, genes, group_by=None, cluster_genes=True, figsize=(20, 20)):
     f, axes = plt.subplots(1, ncols, sharey=True, figsize=figsize)
     f.subplots_adjust(wspace=0)
 
-    cmap = cm.get_cmap('tab10')
+    cmap = mpl.cm.get_cmap('tab10')
 
     for i in range(len(genes)):
         c = cmap((i % 10) / 10)
@@ -48,17 +50,27 @@ def scatter(data, color_by=None, cmap=None, **kwargs):
 
     if color_by is None:
         plt.scatter(x, y, cmap=cmap, **kwargs)
-    else:
+    elif isinstance(color_by, collections.Iterable) and not isinstance(color_by, str):
+        cmap = 'Blues' if cmap is None else cmap
+        plt.scatter(x, y, c=color_by, cmap=cmap, **kwargs)
+    elif color_by in data.index.names:
         color_idx = data.index.names.index(color_by)
         color_levels = data.index.levels[color_idx]
         color_labels = data.index.labels[color_idx]
 
         n_levels = len(color_levels)
-        colors = cm.get_cmap(cmap)(range(n_levels))
+        cmap = 'gist_stern' if cmap is None else cmap
+        cmap = mpl.cm.get_cmap(cmap)
+        if isinstance(cmap, mpl.colors.ListedColormap):
+            colors = np.array(cmap.colors)[np.arange(n_levels) % len(cmap.colors)]
+            print(colors)
+        else:
+            colors = cmap(np.arange(n_levels, dtype='float') / n_levels)[:, :-1]
 
         for i in range(n_levels):
             mask = color_labels == i
-            plt.scatter(x[mask], y[mask], c=colors[i], **kwargs)
+            label = "{} {}".format(color_by, i)
+            plt.scatter(x[mask], y[mask], c=colors[i], label=label, **kwargs)
 
 def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
