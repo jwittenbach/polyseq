@@ -21,6 +21,9 @@ class ExpressionMatrix(pd.DataFrame):
     
     @clusters.setter
     def clusters(self, clusters):
+        if not isinstance(self.index, pd.MultiIndex):
+            self.index = pd.MultiIndex.from_arrays([self.index], names=self.index.names)
+
         if "cluster" in self.index.names:
             ind = self.index.names.index("cluster")
             new_labels = [
@@ -39,6 +42,9 @@ class ExpressionMatrix(pd.DataFrame):
 
         self.index = pd.MultiIndex(
             levels=new_levels, labels=new_labels, names=new_names)
+
+    def get_cluster(self, i):
+        return self.loc[self.clusters == i]
 
     def drop_cells(self, umis=None, num_genes=None, genes=None, umi_threshold=1):
 
