@@ -44,7 +44,7 @@ class ExpressionMatrix(pd.DataFrame):
             levels=new_levels, labels=new_labels, names=new_names)
 
     def get_cluster(self, i):
-        return self.loc[self.clusters == i]
+        return ExpressionMatrix(self.loc[self.clusters == i])
 
     def drop_cells(self, umis=None, num_genes=None, genes=None, umi_threshold=1):
 
