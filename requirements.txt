@@ -2,4 +2,5 @@ sklearn
 numpy
 matplotlib
 scipy
+umap-learn
 https://github.com/jacoblevine/phenograph/archive/master.zip

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import RandomizedPCA
 from sklearn.neighbors.kde import KernelDensity
 from sklearn.manifold import TSNE
+import umap as umap_module
 
 from polyseq.utils import parallelize
 from polyseq.expression_matrix import ExpressionMatrix
@@ -17,6 +18,15 @@ def tsne(data, **kwargs):
     tsne = TSNE(**kwargs).fit_transform(data)
     col_names = ["tsne-{}".format(i) for i in range(tsne.shape[1])]
     return ExpressionMatrix(tsne, columns=col_names)._finalize(index=data.index)
+
+def umap(data, **kwargs):
+    '''
+    wrapper for umap algorithm
+    '''
+    embedding = umap_module.UMAP(**kwargs).fit_transform(data)
+    col_names = ["umap-{}".format(i) for i in range(embedding.shape[1])]
+    return ExpressionMatrix(embedding, columns=col_names)._finalize(index=data.index)
+
 
 def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, plot=False):
     '''
