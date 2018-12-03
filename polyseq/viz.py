@@ -63,14 +63,13 @@ def scatter(data, color_by=None, cmap=None, **kwargs):
         cmap = mpl.cm.get_cmap(cmap)
         if isinstance(cmap, mpl.colors.ListedColormap):
             colors = np.array(cmap.colors)[np.arange(n_levels) % len(cmap.colors)]
-            print(colors)
         else:
             colors = cmap(np.arange(n_levels, dtype='float') / n_levels)[:, :-1]
 
         for i in range(n_levels):
             mask = color_labels == i
             label = "{} {}".format(color_by, i)
-            plt.scatter(x[mask], y[mask], c=colors[i], label=label, **kwargs)
+            plt.scatter(x[mask], y[mask], c=[colors[i]], label=label, **kwargs)
 
 def heatmap(data, figsize=(10, 10), cmap='viridis', row_names=False, col_names=True, col_rotation=30, log_norm=False, colorbar=False):
     '''
