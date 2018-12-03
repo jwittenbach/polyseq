@@ -1,6 +1,8 @@
+tables
 sklearn
 numpy
 matplotlib
 scipy
 umap-learn
+MulticoreTSNE
 https://github.com/jacoblevine/phenograph/archive/master.zip
