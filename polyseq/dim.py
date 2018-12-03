@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import RandomizedPCA
 from sklearn.neighbors.kde import KernelDensity
-from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE
 import umap as umap_module
 
 from polyseq.utils import parallelize
@@ -13,9 +13,11 @@ from polyseq.expression_matrix import ExpressionMatrix
 
 def tsne(data, **kwargs):
     '''
-    wrapper for sklearn TSNE algorithm
+    wrapper for multicore TSNE algorithm
+
+    note: multicore functionality does not work out-of-the-box of Mac OSX
     '''
-    tsne = TSNE(**kwargs).fit_transform(data)
+    tsne = MulticoreTSNE(**kwargs).fit_transform(data)
     col_names = ["tsne-{}".format(i) for i in range(tsne.shape[1])]
     return ExpressionMatrix(tsne, columns=col_names)._finalize(index=data.index)
 
