@@ -2,7 +2,7 @@ import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import RandomizedPCA
+from sklearn.decomposition import PCA
 from sklearn.neighbors.kde import KernelDensity
 from MulticoreTSNE import MulticoreTSNE
 import umap as umap_module
@@ -40,7 +40,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
     if k is not None:
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            pca = RandomizedPCA(n_components=k)
+            pca = PCA(n_components=k, svd_solver='randomized')
         proj = pca.fit_transform(zscored)
         col_names = ["pc-{}".format(i) for i in range(proj.shape[1])]
         return ExpressionMatrix(proj, columns=col_names)._finalize(index=data.index)
@@ -55,7 +55,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            pca = RandomizedPCA(n_components=1)
+            pca = PCA(n_components=1, svd_solver='randomized')
         pca.fit(b)
         return pca.explained_variance_[0]
 
@@ -65,7 +65,7 @@ def pca(data, k=None, n_shuffles=100, alpha=0.05, n_processes=1, max_pcs=100, pl
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        pca = RandomizedPCA(n_components=max_pcs)
+        pca = PCA(n_components=max_pcs, svd_solver='randomized')
     proj = pca.fit_transform(zscored)
 
     inds = np.where(pca.explained_variance_ < cutoff)[0]
